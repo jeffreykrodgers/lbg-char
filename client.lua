@@ -1,5 +1,7 @@
 local mdhash = GetHashKey("mp_m_freemode_01")
 local oldmdhash
+local characterId
+local characterModel = "mp_m_freemode_01"
 
 local Character = {
 	["resemblance"] = 0.8,
@@ -357,10 +359,12 @@ function AddMenuGender(menu)
 			Character["lcgd"] = string.sub(genders[index], 1, 1) .. string.sub(genders[index], 2, #genders[index])
 			oldmdhash = mdhash
 			if genders[index] == "Male" then
-				mdhash = GetHashKey("mp_m_freemode_01")
+				characterModel = "mp_m_freemode_01"
 			else
-				mdhash = GetHashKey("mp_f_freemode_01")
+				characterModel = "mp_f_freemode_01"
 			end
+
+			mdhash = GetHashKey(characterModel)
 			
 			RequestModel(mdhash)
 			Character["resemblance"] = 1.0 - Character["resemblance"]
@@ -1035,25 +1039,26 @@ function CreateSkinCam(camera)
 	end
 end
 
-local initpos = nil
 
 function AnimCam()
+	-- preload collisions for the spawnpoint
+	RequestCollisionAtCoord(405.59, -997.18, -99.00)
 	local playerPed = PlayerPedId()
+	-- SetEntityCoords(PlayerPedId(), -1034.46, -2733.15, 14.0, 0.0, 0.0, 0.0, true)
     DoScreenFadeOut(1000)
     Citizen.Wait(4000)
     DestroyAllCams(true)
-	initpos = GetEntityCoords(PlayerPedId())
 	RefreshModel()
     ChangeComponents(true)
 	cam2 = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", Camera['body'].x, Camera['body'].y, Camera['body'].z, 0.00, 0.00, 0.00, Camera['body'].fov, false, 0)
     SetCamActive(cam2, true)
     RenderScriptCams(true, false, 2000, true, true) 
     Citizen.Wait(500)
-    DoScreenFadeIn(2000)
-    SetEntityCoords(PlayerPedId(), 405.59, -997.18, -99.00, 0.0, 0.0, 0.0, true)
+    SetEntityCoords(PlayerPedId(), 405.59, -997.18, -100.00, 0.0, 0.0, 0.0, true)
     SetEntityHeading(PlayerPedId(), 90.00)
-    -- TriggerEvent('skinchanger:loadSkin', {sex = 0})
-    Citizen.Wait(500)
+	DoScreenFadeIn(2000)
+
+	Citizen.Wait(500)
     cam3 = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", 402.99, -998.02, -99.00, 0.00, 0.00, 0.00, 50.00, false, 0)
     PointCamAtCoord(cam3, 402.99, -998.02, -99.00)
     SetCamActiveWithInterp(cam2, cam3, 5000, true, true)
@@ -1062,15 +1067,65 @@ function AnimCam()
 	Citizen.Wait(5500)
 	loopanim = true
     local coords = GetEntityCoords(PlayerPedId())
-    if GetDistanceBetweenCoords(coords, 402.89, -996.87, -99.0, true) > 0.5 then
-    	SetEntityCoords(PlayerPedId(), 402.89, -996.87, -99.0, 0.0, 0.0, 0.0, true)
+    -- if GetDistanceBetweenCoords(coords, 402.89, -996.87, -99.0, true) > 0.5 then
+    	SetEntityCoords(PlayerPedId(), 402.89, -996.87, -100.0, 0.0, 0.0, 0.0, true)
     	SetEntityHeading(PlayerPedId(), 173.97)
-    end
+    -- end
     Citizen.Wait(100)
 	mainMenu:Visible(true)
     Citizen.Wait(1000)
     FreezeEntityPosition(PlayerPedId(), true)
 end
+
+function StartCharacterCreator()
+    local initCoords = {x = 405.59, y = -997.18, z = -100.00}
+    local finalCoords = {x = 402.89, y = -996.87, z = -100.0}
+
+    -- Preload collisions and fade out screen
+    RequestCollisionAtCoord(initCoords.x, initCoords.y, initCoords.z)
+
+	local playerPed = PlayerPedId()
+
+    DoScreenFadeOut(1000)
+    Citizen.Wait(4000)
+
+    -- Destroy all cams to ensure a fresh start
+    DestroyAllCams(true)
+    
+    -- Setup character and camera
+    RefreshModel()
+    ChangeComponents(true)
+    SetEntityCoords(playerPed, initCoords.x, initCoords.y, initCoords.z, true, true, true)
+    SetEntityHeading(playerPed, 90.00)
+
+    local cam = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", Camera['body'].x, Camera['body'].y, Camera['body'].z, 0.00, 0.00, 0.00, Camera['body'].fov, false, 0)
+    SetCamActive(cam, true)
+    RenderScriptCams(true, false, 2000, true, true) 
+
+    DoScreenFadeIn(2000)
+    Citizen.Wait(2000)
+
+    -- Point cam towards the character
+    PointCamAtCoord(cam, finalCoords.x, finalCoords.y, finalCoords.z)
+    
+    -- Transition to the next camera view
+    local cam2 = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", 402.99, -998.02, -99.00, 0.00, 0.00, 0.00, 50.00, false, 0)
+    PointCamAtCoord(cam2, finalCoords.x, finalCoords.y, finalCoords.z)  -- Ensure the new cam also looks towards the final position
+    SetCamActiveWithInterp(cam2, cam, 5000, true, true)
+
+    -- Play the animation
+    LoadAnim("mp_character_creation@customise@male_a")
+    TaskPlayAnim(playerPed, "mp_character_creation@customise@male_a", "intro", 1.0, 1.0, 4050, 0, 1, 0, 0, 0)
+    Citizen.Wait(5500)
+
+    -- Set the final position
+    SetEntityCoordsNoOffset(playerPed, finalCoords.x, finalCoords.y, finalCoords.z, true, true, true)
+    SetEntityHeading(playerPed, 173.97)
+
+    mainMenu:Visible(true)
+    FreezeEntityPosition(playerPed, true)
+end
+
 
 function EndCharCreator()
 	mainMenu:Visible(false)
@@ -1086,7 +1141,7 @@ function EndCharCreator()
 	local playerPed = PlayerPedId()
 	DoScreenFadeOut(1000)
 	Wait(1000)
-	SetEntityCoords(playerPed, initpos.x, initpos.y, initpos.z, true, false, false, true)
+	SetEntityCoords(playerPed, -1034.46, -2733.15, 14.0, true, false, false, true)
 	SetCamActive(camSkin,  false)
 	RenderScriptCams(false,  false,  0,  true,  true)
 	enable = false
@@ -1102,7 +1157,8 @@ function EndCharCreator()
     FreezeEntityPosition(PlayerPedId(), false)
 	Wait(1000)
 	SetResourceKvp('lbg-char-info', json.encode(Character))
-	TriggerServerEvent('lbg-chardone', Character)
+	print("Triggering server action" .. characterId .. " " .. characterModel)
+	TriggerServerEvent('lbg-chardone', Character, characterId, characterModel)
 	DisplayRadar(true)
 	DoScreenFadeIn(1000)
 	Wait(1000)
@@ -1139,7 +1195,8 @@ Citizen.CreateThread(function()
 end)
 
 RegisterNetEvent('lbg-openChar')
-AddEventHandler('lbg-openChar', function()
+AddEventHandler('lbg-openChar', function(id)
+	characterId = id
 	CharCreatorAnimation()
 end)
 
