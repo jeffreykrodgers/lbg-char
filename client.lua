@@ -249,73 +249,71 @@ function ShowNotification(text)
     DrawNotification(false, false)
 end
 
-function ChangeComponents(shouldChangeModel)
-	--the shouldChangeModel parameter is here for legacy purposes, because I am lazy to change up any lines of code
-	--containing it. it is not requires, as it is not used.
+function ChangeComponents(skin)
 	SetPedDefaultComponentVariation(PlayerPedId())
-	SetPedHeadBlendData(PlayerPedId(), Character["mom"], Character["dad"], nil, Character["mom"], Character["dad"], nil, Character["resemblance"], Character["skintone"], nil, true)
-	SetPedComponentVariation(PlayerPedId(), 2, Character["hair"], 0, 2)
-	SetPedHairColor(PlayerPedId(),Character['hair_color_1'], 0)
+	SetPedHeadBlendData(PlayerPedId(), skin["mom"], skin["dad"], nil, skin["mom"], skin["dad"], nil, skin["resemblance"], skin["skintone"], nil, true)
+	SetPedComponentVariation(PlayerPedId(), 2, skin["hair"], 0, 2)
+	SetPedHairColor(PlayerPedId(),skin['hair_color_1'], 0)
 
 	ClearPedDecorations(PlayerPedId())
-	if hairDecor[Character["ogd"]][Character["hair"]] ~= nil then
-		AddPedDecorationFromHashes(PlayerPedId(), hairDecor[Character["ogd"]][GetPedDrawableVariation(PlayerPedId(), 2)][1], hairDecor[Character["ogd"]][GetPedDrawableVariation(PlayerPedId(), 2)][2])
+	if hairDecor[skin["ogd"]][skin["hair"]] ~= nil then
+		AddPedDecorationFromHashes(PlayerPedId(), hairDecor[skin["ogd"]][GetPedDrawableVariation(PlayerPedId(), 2)][1], hairDecor[skin["ogd"]][GetPedDrawableVariation(PlayerPedId(), 2)][2])
 	else
 		AddPedDecorationFromHashes(PlayerPedId(), hairDecorDefault[1], hairDecorDefault[2])
 	end
-	SetPedHeadOverlay(PlayerPedId(), 8,Character['lipstick_1'],Character['lipstick_2'])
-	SetPedHeadOverlayColor(PlayerPedId(), 8, 1,Character['lipstick_3'],0)
-	SetPedHeadOverlay(PlayerPedId(), 2,Character['eyebrows'],Character['eyebrows_2'])
-	SetPedHeadOverlayColor(PlayerPedId(), 2, 1,Character['eyebrows_3'],0)
-	SetPedHeadOverlay(PlayerPedId(), 3,Character['age_1'],Character['age_2'])
-	SetPedHeadOverlay(PlayerPedId(), 7,Character['sun_1'],Character['sun_2'])
-	SetPedHeadOverlay(PlayerPedId(), 6,Character['complexion_1'],Character['complexion_2'])
-	SetPedHeadOverlay(PlayerPedId(), 9,Character['moles_1'],Character['moles_2'])
-	SetPedEyeColor(PlayerPedId(), Character['eye_color'], 0, 1)
-	SetPedHeadOverlay(PlayerPedId(), 4,Character['makeup_1'],Character['makeup_2'])
-	SetPedHeadOverlayColor(PlayerPedId(), 4, 1,Character['makeup_3'],0)
-	SetPedFaceFeature(PlayerPedId(), 19, Character['neck_thick'])
-	SetPedFaceFeature(PlayerPedId(), 18, Character['chin_hole'])
-	SetPedFaceFeature(PlayerPedId(), 17, Character['chin_width'])
-	SetPedFaceFeature(PlayerPedId(), 16, Character['chin_length'])
-	SetPedFaceFeature(PlayerPedId(), 15, Character['chin_height'])
-	SetPedFaceFeature(PlayerPedId(), 14, Character['jaw_2'])
-	SetPedFaceFeature(PlayerPedId(), 13, Character['jaw_1'])
-	SetPedFaceFeature(PlayerPedId(), 12, Character['lips_thick'])
-	SetPedFaceFeature(PlayerPedId(), 11, Character['eye_open'])
-	SetPedFaceFeature(PlayerPedId(), 10, Character['cheeks_3'])
-	SetPedFaceFeature(PlayerPedId(), 9, Character['cheeks_2'])
-	SetPedFaceFeature(PlayerPedId(), 8, Character['cheeks_1'])
-	SetPedFaceFeature(PlayerPedId(), 6, Character['eyebrows_6'])
-	SetPedFaceFeature(PlayerPedId(), 7, Character['eyebrows_5'])
-	SetPedFaceFeature(PlayerPedId(), 5, Character['nose_6'])
-	SetPedFaceFeature(PlayerPedId(), 4, Character['nose_5'])
-	SetPedFaceFeature(PlayerPedId(), 3, Character['nose_4'])
-	SetPedFaceFeature(PlayerPedId(), 2, Character['nose_3'])
-	SetPedFaceFeature(PlayerPedId(), 1, Character['nose_2'])
-	SetPedFaceFeature(PlayerPedId(), 0, Character['nose_1'])
-	if Character["gender"] == "Male" then
-		for k, v in pairs(moutfits[Character["outfit"]]) do
+	SetPedHeadOverlay(PlayerPedId(), 8,skin['lipstick_1'],skin['lipstick_2'])
+	SetPedHeadOverlayColor(PlayerPedId(), 8, 1,skin['lipstick_3'],0)
+	SetPedHeadOverlay(PlayerPedId(), 2,skin['eyebrows'],skin['eyebrows_2'])
+	SetPedHeadOverlayColor(PlayerPedId(), 2, 1,skin['eyebrows_3'],0)
+	SetPedHeadOverlay(PlayerPedId(), 3,skin['age_1'],skin['age_2'])
+	SetPedHeadOverlay(PlayerPedId(), 7,skin['sun_1'],skin['sun_2'])
+	SetPedHeadOverlay(PlayerPedId(), 6,skin['complexion_1'],skin['complexion_2'])
+	SetPedHeadOverlay(PlayerPedId(), 9,skin['moles_1'],skin['moles_2'])
+	SetPedEyeColor(PlayerPedId(), skin['eye_color'], 0, 1)
+	SetPedHeadOverlay(PlayerPedId(), 4,skin['makeup_1'],skin['makeup_2'])
+	SetPedHeadOverlayColor(PlayerPedId(), 4, 1,skin['makeup_3'],0)
+	SetPedFaceFeature(PlayerPedId(), 19, skin['neck_thick'])
+	SetPedFaceFeature(PlayerPedId(), 18, skin['chin_hole'])
+	SetPedFaceFeature(PlayerPedId(), 17, skin['chin_width'])
+	SetPedFaceFeature(PlayerPedId(), 16, skin['chin_length'])
+	SetPedFaceFeature(PlayerPedId(), 15, skin['chin_height'])
+	SetPedFaceFeature(PlayerPedId(), 14, skin['jaw_2'])
+	SetPedFaceFeature(PlayerPedId(), 13, skin['jaw_1'])
+	SetPedFaceFeature(PlayerPedId(), 12, skin['lips_thick'])
+	SetPedFaceFeature(PlayerPedId(), 11, skin['eye_open'])
+	SetPedFaceFeature(PlayerPedId(), 10, skin['cheeks_3'])
+	SetPedFaceFeature(PlayerPedId(), 9, skin['cheeks_2'])
+	SetPedFaceFeature(PlayerPedId(), 8, skin['cheeks_1'])
+	SetPedFaceFeature(PlayerPedId(), 6, skin['eyebrows_6'])
+	SetPedFaceFeature(PlayerPedId(), 7, skin['eyebrows_5'])
+	SetPedFaceFeature(PlayerPedId(), 5, skin['nose_6'])
+	SetPedFaceFeature(PlayerPedId(), 4, skin['nose_5'])
+	SetPedFaceFeature(PlayerPedId(), 3, skin['nose_4'])
+	SetPedFaceFeature(PlayerPedId(), 2, skin['nose_3'])
+	SetPedFaceFeature(PlayerPedId(), 1, skin['nose_2'])
+	SetPedFaceFeature(PlayerPedId(), 0, skin['nose_1'])
+	if skin["gender"] == "Male" then
+		for k, v in pairs(moutfits[skin["outfit"]]) do
 			SetPedComponentVariation(PlayerPedId(), k, v[1], v[2], 2)
 		end
-		SetPedHeadOverlay(PlayerPedId(), 1,Character['beard'],Character['beard_2'])
-		SetPedHeadOverlayColor(PlayerPedId(), 1, 1,	Character['beard_3'],0)
-	elseif Character["gender"] == "Female" then
-		for k, v in pairs(foutfits[Character["outfit"]]) do
+		SetPedHeadOverlay(PlayerPedId(), 1,skin['beard'],skin['beard_2'])
+		SetPedHeadOverlayColor(PlayerPedId(), 1, 1,	skin['beard_3'],0)
+	elseif skin["gender"] == "Female" then
+		for k, v in pairs(foutfits[skin["outfit"]]) do
 			SetPedComponentVariation(PlayerPedId(), k, v[1], v[2], 2)
 		end
-		SetPedHeadOverlay(PlayerPedId(), 5,Character['blush_1'],Character['blush_2'])
-		SetPedHeadOverlayColor(PlayerPedId(), 5, 2,	Character['blush_3'],0)
+		SetPedHeadOverlay(PlayerPedId(), 5,skin['blush_1'],skin['blush_2'])
+		SetPedHeadOverlayColor(PlayerPedId(), 5, 2,	skin['blush_3'],0)
 	end
 	local glassDR
-	if Character["glasses"] == 0 then
-		if Character["gender"] == "Male" then
+	if skin["glasses"] == 0 then
+		if skin["gender"] == "Male" then
 			SetPedPropIndex(PlayerPedId(), 1, 11, 0, false)
 		else
 			SetPedPropIndex(PlayerPedId(), 1, 5, 0, false)
 		end
 	else
-		if Character["gender"] == "Male" then
+		if skin["gender"] == "Male" then
 			SetPedPropIndex(PlayerPedId(), 1, 5, 0, false)
 		else
 			SetPedPropIndex(PlayerPedId(), 1, 11, 0, false)
@@ -332,12 +330,14 @@ function RefreshModel()
 			end
 			SetPlayerModel(PlayerId(), mdhash)
 			SetPedHeadBlendData(PlayerPedId(), Character["mom"], Character["dad"], nil, Character["mom"], Character["dad"], nil, Character["resemblance"], Character["skintone"], nil, true)
-			ChangeComponents()
+			ChangeComponents(Character)
 		end
 	end)
 end
 RegisterNetEvent('lbg-refreshComponents')
-AddEventHandler('lbg-refreshComponents', ChangeComponents)
+AddEventHandler('lbg-refreshComponents', function(skinData)
+    ChangeComponents(skinData)
+end)
 RegisterNetEvent('lbg-refreshModel')
 AddEventHandler('lbg-refreshModel', RefreshModel)
 
@@ -953,7 +953,7 @@ function AddMenuApparel(menu)
 	submenu.OnListChange = function(sender, item, index)
 		if item == outfititem then
 			Character["outfit"] = index
-			ChangeComponents(false)
+			ChangeComponents()
 		end
 		if item == glassesitem then
 			Character["glasses"] = index - 1
@@ -1049,7 +1049,7 @@ function AnimCam()
     Citizen.Wait(4000)
     DestroyAllCams(true)
 	RefreshModel()
-    ChangeComponents(true)
+    ChangeComponents()
 	cam2 = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", Camera['body'].x, Camera['body'].y, Camera['body'].z, 0.00, 0.00, 0.00, Camera['body'].fov, false, 0)
     SetCamActive(cam2, true)
     RenderScriptCams(true, false, 2000, true, true) 
@@ -1094,7 +1094,7 @@ function StartCharacterCreator()
     
     -- Setup character and camera
     RefreshModel()
-    ChangeComponents(true)
+    ChangeComponents()
     SetEntityCoords(playerPed, initCoords.x, initCoords.y, initCoords.z, true, true, true)
     SetEntityHeading(playerPed, 90.00)
 
@@ -1147,7 +1147,7 @@ function EndCharCreator()
 	enable = false
 	DisplayRadar(true)
 	Wait(1000)
-	ChangeComponents(false)
+	ChangeComponents()
 	DoScreenFadeOut(10)
 	Wait(1000)
 	SetCamActive(camSkin,  false)
