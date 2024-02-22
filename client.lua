@@ -320,6 +320,7 @@ function ChangeComponents()
 		end
 	end
 end
+
 function RefreshModel()
 	Citizen.CreateThread(function()
 		--replaces the player's current model if it wasn't the supposed one already
@@ -334,13 +335,6 @@ function RefreshModel()
 		end
 	end)
 end
-RegisterNetEvent('lbg-refreshComponents')
-AddEventHandler('lbg-refreshComponents', function(skinData)
-	Character = skinData
-    ChangeComponents()
-end)
-RegisterNetEvent('lbg-refreshModel')
-AddEventHandler('lbg-refreshModel', RefreshModel)
 
 function AddMenuGender(menu)
     local genders = {
@@ -1000,21 +994,10 @@ local Camera = {
 cam, cam2, cam3, camSkin, isCameraActive = nil, nil, nil, nil, nil
 lastCam = 'body'
 
-function Collision()
-    for i=1,256 do
-        if NetworkIsPlayerActive(i) then
-            SetEntityVisible(GetPlayerPed(i), false, false)
-            SetEntityVisible(PlayerPedId(), true, true)
-            SetEntityNoCollisionEntity(GetPlayerPed(i), PlayerPedId(), false)
-        end
-    end
-end
-
 function Visible()
     while enable == true do
         Citizen.Wait(0)
-        --DisableAllControlActions(0)
-        Collision()
+        DisableAllControlActions(0)
     end
 end
 
@@ -1040,81 +1023,86 @@ function CreateSkinCam(camera)
 	end
 end
 
+function EnsureCollision(coords)
+    while not HasCollisionLoadedAroundEntity(PlayerPedId()) do
+        RequestCollisionAtCoord(coords.x, coords.y, coords.z)
+        Citizen.Wait(0)
+    end
+end
+
 
 function AnimCam()
-	-- preload collisions for the spawnpoint
-	RequestCollisionAtCoord(405.59, -997.18, -99.00)
-	local playerPed = PlayerPedId()
-	-- SetEntityCoords(PlayerPedId(), -1034.46, -2733.15, 14.0, 0.0, 0.0, 0.0, true)
+    local playerPed = PlayerPedId()
+    local spawnCoords = vector3(402.89, -996.87, -100.0)  -- Adjust Z-coordinate as needed
+
+    -- Ensure collision is loaded
+    EnsureCollision(spawnCoords)
+
+    -- Fade out, wait for fade out to complete
     DoScreenFadeOut(1000)
-    Citizen.Wait(4000)
-    DestroyAllCams(true)
-	RefreshModel()
-    ChangeComponents()
-	cam2 = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", Camera['body'].x, Camera['body'].y, Camera['body'].z, 0.00, 0.00, 0.00, Camera['body'].fov, false, 0)
-    SetCamActive(cam2, true)
-    RenderScriptCams(true, false, 2000, true, true) 
-    Citizen.Wait(500)
-    SetEntityCoords(PlayerPedId(), 405.59, -997.18, -100.00, 0.0, 0.0, 0.0, true)
-    SetEntityHeading(PlayerPedId(), 90.00)
-	DoScreenFadeIn(2000)
-
-	Citizen.Wait(500)
-    cam3 = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", 402.99, -998.02, -99.00, 0.00, 0.00, 0.00, 50.00, false, 0)
-    PointCamAtCoord(cam3, 402.99, -998.02, -99.00)
-    SetCamActiveWithInterp(cam2, cam3, 5000, true, true)
-    LoadAnim("mp_character_creation@customise@male_a")
-    TaskPlayAnim(PlayerPedId(), "mp_character_creation@customise@male_a", "intro", 1.0, 1.0, 4050, 0, 1, 0, 0, 0)
-	Citizen.Wait(5500)
-	loopanim = true
-    local coords = GetEntityCoords(PlayerPedId())
-    -- if GetDistanceBetweenCoords(coords, 402.89, -996.87, -99.0, true) > 0.5 then
-    	SetEntityCoords(PlayerPedId(), 402.89, -996.87, -100.0, 0.0, 0.0, 0.0, true)
-    	SetEntityHeading(PlayerPedId(), 173.97)
-    -- end
-    Citizen.Wait(100)
-	mainMenu:Visible(true)
     Citizen.Wait(1000)
-    FreezeEntityPosition(PlayerPedId(), true)
-end
 
+    -- Refresh model and change components
+    RefreshModel()
+    ChangeComponents()
+
+    -- Set the player at the spawn position and heading
+    SetEntityCoords(playerPed, spawnCoords.x, spawnCoords.y, spawnCoords.z, 0, 0, 0, true)
+    SetEntityHeading(playerPed, 173.97)  -- Adjust the heading as needed
+
+    -- Camera setup
+	DestroyAllCams(true)
+	local cam2 = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", Camera['body'].x, Camera['body'].y, Camera['body'].z, 0.00, 0.00, 0.00, Camera['body'].fov, false, 0)
+    SetCamActive(cam2, true)
+    RenderScriptCams(true, false, 2000, true, true)
+
+    -- Fade in after character is in position and camera is set up
+    DoScreenFadeIn(1000)
+    Citizen.Wait(1000)
+	ShutdownLoadingScreen()
+
+    -- Enable the main menu and freeze the player
+    mainMenu:Visible(true)
+    FreezeEntityPosition(playerPed, true)
+end
 
 function EndCharCreator()
-	mainMenu:Visible(false)
-	FreezeEntityPosition(PlayerPedId(), false)
-	if Character["gender"] == "Male" then
-		LoadAnim("mp_character_creation@lineup@male_b")
-		TaskPlayAnim(PlayerPedId(), "mp_character_creation@lineup@male_b", "outro", 0.225, 1.0, 6000, 0, 1, 0, 0, 0)
-	elseif Character["gender"] == "Female" then
-		LoadAnim("mp_character_creation@lineup@female_a")
-		TaskPlayAnim(PlayerPedId(), "mp_character_creation@lineup@female_a", "outro", 0.225, 1.0, 6000, 0, 1, 0, 0, 0)
-	end
-	Citizen.Wait(4275)
-	local playerPed = PlayerPedId()
-	DoScreenFadeOut(1000)
-	Wait(1000)
-	SetEntityCoords(playerPed, -1034.46, -2733.15, 14.0, true, false, false, true)
-	SetCamActive(camSkin,  false)
-	RenderScriptCams(false,  false,  0,  true,  true)
+    local playerPed = PlayerPedId()
+
+    -- Hide the main menu and unfreeze the player
+    mainMenu:Visible(false)
+    FreezeEntityPosition(playerPed, false)
+
+    -- Load and play the appropriate animation based on the character's gender
+    local animDict = Character["gender"] == "Male" and "mp_character_creation@lineup@male_b" or "mp_character_creation@lineup@female_a"
+    local animName = Character["gender"] == "Male" and "outro" or "outro" -- you can change the animation name if different for male and female
+
+    LoadAnim(animDict)
+    TaskPlayAnim(playerPed, animDict, animName, 0.225, 1.0, 6000, 0, 1, 0, 0, 0)
+
+    -- Wait for the duration of the animation
+    Citizen.Wait(5000)
+
+    -- Fade out, move the player, and deactivate the camera
+    DoScreenFadeOut(1000)
+    Citizen.Wait(2000)
+
+    SetEntityCoords(playerPed, -1034.46, -2733.15, 14.0, true, false, false, true)
+    SetCamActive(camSkin, false)
+    RenderScriptCams(false, false, 0, true, true)
+
+    -- Re-enable radar and other controls
+    DisplayRadar(true)
+    -- EnableAllControlActions(0)
 	enable = false
-	DisplayRadar(true)
-	Wait(1000)
-	ChangeComponents()
-	DoScreenFadeOut(10)
-	Wait(1000)
-	SetCamActive(camSkin,  false)
-	RenderScriptCams(false,  false,  0,  true,  true)
-	enable = false
-	EnableAllControlActions(0)
-    FreezeEntityPosition(PlayerPedId(), false)
-	Wait(1000)
-	SetResourceKvp('lbg-char-info', json.encode(Character))
-	print("Triggering server action" .. characterId .. " " .. characterModel)
-	TriggerServerEvent('lbg-chardone', Character, characterId, characterModel)
-	DisplayRadar(true)
-	DoScreenFadeIn(1000)
-	Wait(1000)
+	Citizen.Wait(2000)
+
+    -- Trigger server event and fade back in
+    TriggerServerEvent('lbg-chardone', Character, characterId, characterModel)
+    DoScreenFadeIn(1000)
+    Citizen.Wait(1000)
 end
+
 
 function LoadAnim(dict)
   while not HasAnimDictLoaded(dict) do
@@ -1151,6 +1139,14 @@ AddEventHandler('lbg-openChar', function(id)
 	characterId = id
 	CharCreatorAnimation()
 end)
+
+RegisterNetEvent('lbg-refreshComponents')
+AddEventHandler('lbg-refreshComponents', function(skinData)
+	Character = skinData
+    ChangeComponents()
+end)
+RegisterNetEvent('lbg-refreshModel')
+AddEventHandler('lbg-refreshModel', RefreshModel)
 
 RegisterCommand("charedit", function()
     TriggerEvent('lbg-openChar')
